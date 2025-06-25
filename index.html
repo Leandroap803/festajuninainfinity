@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -7,19 +7,26 @@
   <style>
     body {
       font-family: sans-serif;
-      background: #fff8f0;
+      background: url('https://i.imgur.com/otX7bxV.jpeg') no-repeat center center fixed;
+      background-size: cover;
       padding: 20px;
       max-width: 900px;
       margin: auto;
+      background-color: rgba(255, 248, 240, 0.9);
+      backdrop-filter: blur(3px);
     }
     h1 {
       text-align: center;
       color: #d2691e;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 10px;
+      border-radius: 8px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background-color: rgba(255, 255, 255, 0.85);
     }
     th, td {
       border: 1px solid #ddd;
@@ -48,7 +55,7 @@
 </head>
 <body>
   <h1>Festa Junina - Infinity Residence</h1>
-  <p style="text-align:center;"><strong>⚠️ Cada prato só pode ser escolhido uma vez! Leve também sua bebida.</strong></p>
+  <p style="text-align:center; background-color: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;"><strong>⚠️ Cada prato só pode ser escolhido uma vez! Leve também sua bebida.</strong></p>
 
   <table id="tabela">
     <thead>
@@ -56,6 +63,7 @@
         <th>Apartamento</th>
         <th>Nome</th>
         <th>Prato</th>
+        <th>Pessoas</th>
         <th>Status</th>
       </tr>
     </thead>
@@ -63,7 +71,6 @@
   </table>
 
   <script>
-    // Gera apartamentos: 01 (térreo), 101-104, 201-204, ..., 1301-1304 (total 54 unidades)
     const apartamentos = ["01"];
     for (let andar = 1; andar <= 13; andar++) {
       for (let unidade = 1; unidade <= 4; unidade++) {
@@ -100,12 +107,24 @@
       const inputPrato = document.createElement("input");
       inputPrato.placeholder = "Seu prato";
       inputPrato.className = "prato";
+
+      const tdPessoas = document.createElement("td");
+      const inputPessoas = document.createElement("input");
+      inputPessoas.placeholder = "Nº de pessoas";
+      inputPessoas.type = "number";
+      inputPessoas.min = 1;
+      tdPessoas.appendChild(inputPessoas);
+
+      const tdStatus = document.createElement("td");
+      tdStatus.textContent = "Aguardando...";
+
       inputPrato.addEventListener("blur", () => {
         const valor = inputPrato.value.trim().toLowerCase();
         if (valor && !usados.has(valor)) {
           usados.add(valor);
           inputPrato.disabled = true;
           inputNome.disabled = true;
+          inputPessoas.disabled = true;
           tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
           atualizarStatus();
         } else if (usados.has(valor)) {
@@ -113,14 +132,13 @@
           inputPrato.value = "";
         }
       });
-      tdPrato.appendChild(inputPrato);
 
-      const tdStatus = document.createElement("td");
-      tdStatus.textContent = "Aguardando...";
+      tdPrato.appendChild(inputPrato);
 
       tr.appendChild(tdApto);
       tr.appendChild(tdNome);
       tr.appendChild(tdPrato);
+      tr.appendChild(tdPessoas);
       tr.appendChild(tdStatus);
 
       return tr;
