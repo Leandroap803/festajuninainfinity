@@ -51,11 +51,23 @@
       font-weight: bold;
       color: green;
     }
+    #mensagemErro {
+      display: none;
+      background-color: #ffcccc;
+      color: #a00;
+      border: 1px solid #a00;
+      padding: 10px;
+      margin: 10px 0;
+      text-align: center;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
   <h1>Festa Junina - Infinity Residence</h1>
   <p style="text-align:center; background-color: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px;"><strong>⚠️ Cada prato só pode ser escolhido uma vez! Leve também sua bebida.</strong></p>
+
+  <div id="mensagemErro"></div>
 
   <table id="tabela">
     <thead>
@@ -78,6 +90,15 @@
     }
 
     const usados = new Set();
+    const mensagemErro = document.getElementById("mensagemErro");
+
+    function mostrarErro(mensagem) {
+      mensagemErro.textContent = mensagem;
+      mensagemErro.style.display = "block";
+      setTimeout(() => {
+        mensagemErro.style.display = "none";
+      }, 3000);
+    }
 
     function salvarDados() {
       const dados = [];
@@ -137,20 +158,28 @@
         tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
       }
 
-      inputPrato.addEventListener("blur", () => {
-        const valor = inputPrato.value.trim().toLowerCase();
-        if (valor && !usados.has(valor)) {
-          usados.add(valor);
-          inputPrato.disabled = true;
-          inputPessoas.disabled = true;
-          tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
-          atualizarStatus();
-          salvarDados();
-        } else if (usados.has(valor)) {
-          alert("Esse prato já foi escolhido! Tente outro.");
-          inputPrato.value = "";
+      function confirmar() {
+        const pratoVal = inputPrato.value.trim().toLowerCase();
+        const pessoasVal = inputPessoas.value.trim();
+        if (!pratoVal || !pessoasVal) {
+          mostrarErro("Preencha o prato e o número de pessoas antes de confirmar.");
+          return;
         }
-      });
+        if (usados.has(pratoVal)) {
+          mostrarErro("Esse prato já foi escolhido! Tente outro.");
+          inputPrato.value = "";
+          return;
+        }
+        usados.add(pratoVal);
+        inputPrato.disabled = true;
+        inputPessoas.disabled = true;
+        tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
+        atualizarStatus();
+        salvarDados();
+      }
+
+      inputPrato.addEventListener("blur", confirmar);
+      inputPessoas.addEventListener("blur", confirmar);
 
       tdPrato.appendChild(inputPrato);
       tdPessoas.appendChild(inputPessoas);
