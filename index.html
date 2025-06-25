@@ -61,7 +61,6 @@
     <thead>
       <tr>
         <th>Apartamento</th>
-        <th>Nome</th>
         <th>Prato</th>
         <th>Pessoas</th>
         <th>Status</th>
@@ -80,6 +79,23 @@
 
     const usados = new Set();
 
+    function salvarDados() {
+      const dados = [];
+      document.querySelectorAll("#tabela tbody tr").forEach(tr => {
+        const apto = tr.children[0].textContent;
+        const prato = tr.children[1].querySelector("input")?.value || "";
+        const pessoas = tr.children[2].querySelector("input")?.value || "";
+        const status = tr.children[3].textContent;
+        dados.push({ apto, prato, pessoas, status });
+      });
+      localStorage.setItem("festaJunina", JSON.stringify(dados));
+    }
+
+    function carregarDados() {
+      const salvos = JSON.parse(localStorage.getItem("festaJunina")) || [];
+      return Object.fromEntries(salvos.map(item => [item.apto, item]));
+    }
+
     function atualizarStatus() {
       document.querySelectorAll("input.prato").forEach(input => {
         if (usados.has(input.value.trim().toLowerCase())) {
@@ -92,41 +108,44 @@
       });
     }
 
-    function criarLinha(apto) {
+    function criarLinha(apto, dadosSalvos = {}) {
       const tr = document.createElement("tr");
 
       const tdApto = document.createElement("td");
       tdApto.textContent = apto;
 
-      const tdNome = document.createElement("td");
-      const inputNome = document.createElement("input");
-      inputNome.placeholder = "Seu nome";
-      tdNome.appendChild(inputNome);
-
       const tdPrato = document.createElement("td");
       const inputPrato = document.createElement("input");
       inputPrato.placeholder = "Seu prato";
       inputPrato.className = "prato";
+      inputPrato.value = dadosSalvos.prato || "";
 
       const tdPessoas = document.createElement("td");
       const inputPessoas = document.createElement("input");
       inputPessoas.placeholder = "Nº de pessoas";
       inputPessoas.type = "number";
       inputPessoas.min = 1;
-      tdPessoas.appendChild(inputPessoas);
+      inputPessoas.value = dadosSalvos.pessoas || "";
 
       const tdStatus = document.createElement("td");
-      tdStatus.textContent = "Aguardando...";
+      tdStatus.textContent = dadosSalvos.status || "Aguardando...";
+
+      if (dadosSalvos.prato) {
+        usados.add(dadosSalvos.prato.toLowerCase());
+        inputPrato.disabled = true;
+        inputPessoas.disabled = true;
+        tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
+      }
 
       inputPrato.addEventListener("blur", () => {
         const valor = inputPrato.value.trim().toLowerCase();
         if (valor && !usados.has(valor)) {
           usados.add(valor);
           inputPrato.disabled = true;
-          inputNome.disabled = true;
           inputPessoas.disabled = true;
           tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
           atualizarStatus();
+          salvarDados();
         } else if (usados.has(valor)) {
           alert("Esse prato já foi escolhido! Tente outro.");
           inputPrato.value = "";
@@ -134,9 +153,9 @@
       });
 
       tdPrato.appendChild(inputPrato);
+      tdPessoas.appendChild(inputPessoas);
 
       tr.appendChild(tdApto);
-      tr.appendChild(tdNome);
       tr.appendChild(tdPrato);
       tr.appendChild(tdPessoas);
       tr.appendChild(tdStatus);
@@ -145,7 +164,12 @@
     }
 
     const tbody = document.querySelector("#tabela tbody");
-    apartamentos.forEach(apto => tbody.appendChild(criarLinha(apto)));
+    const dadosSalvos = carregarDados();
+    apartamentos.forEach(apto => {
+      const linha = criarLinha(apto, dadosSalvos[apto]);
+      tbody.appendChild(linha);
+    });
+    atualizarStatus();
   </script>
 </body>
 </html>
