@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Festa Junina - Lista de Pratos</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fff8f0;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #d2691e;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #ffa500;
+      color: white;
+    }
+    input {
+      width: 100%;
+      padding: 5px;
+    }
+    .ocupado {
+      background-color: #ffd6cc;
+    }
+    .livre {
+      background-color: #eaffea;
+    }
+    .salvo {
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>Festa Junina - Infinity Residence</h1>
+  <p style="text-align:center;"><strong>⚠️ Cada prato só pode ser escolhido uma vez! Leve também sua bebida.</strong></p>
+
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>Apartamento</th>
+        <th>Nome</th>
+        <th>Prato</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apartamentos = Array.from({length: 54}, (_, i) => 100 + i + 1);
+    const usados = new Set();
+
+    function atualizarStatus() {
+      document.querySelectorAll("input.prato").forEach(input => {
+        if (usados.has(input.value.trim().toLowerCase())) {
+          input.classList.add("ocupado");
+          input.classList.remove("livre");
+        } else {
+          input.classList.remove("ocupado");
+          input.classList.add("livre");
+        }
+      });
+    }
+
+    function criarLinha(apto) {
+      const tr = document.createElement("tr");
+
+      const tdApto = document.createElement("td");
+      tdApto.textContent = apto;
+      
+      const tdNome = document.createElement("td");
+      const inputNome = document.createElement("input");
+      inputNome.placeholder = "Seu nome";
+      tdNome.appendChild(inputNome);
+
+      const tdPrato = document.createElement("td");
+      const inputPrato = document.createElement("input");
+      inputPrato.placeholder = "Seu prato";
+      inputPrato.className = "prato";
+      inputPrato.addEventListener("blur", () => {
+        const valor = inputPrato.value.trim().toLowerCase();
+        if (valor && !usados.has(valor)) {
+          usados.add(valor);
+          inputPrato.disabled = true;
+          inputNome.disabled = true;
+          tdStatus.innerHTML = "<span class='salvo'>Confirmado</span>";
+          atualizarStatus();
+        } else if (usados.has(valor)) {
+          alert("Esse prato já foi escolhido! Tente outro.");
+          inputPrato.value = "";
+        }
+      });
+      tdPrato.appendChild(inputPrato);
+
+      const tdStatus = document.createElement("td");
+      tdStatus.textContent = "Aguardando...";
+
+      tr.appendChild(tdApto);
+      tr.appendChild(tdNome);
+      tr.appendChild(tdPrato);
+      tr.appendChild(tdStatus);
+
+      return tr;
+    }
+
+    const tbody = document.querySelector("#tabela tbody");
+    apartamentos.forEach(apto => tbody.appendChild(criarLinha(apto)));
+  </script>
+</body>
+</html>
