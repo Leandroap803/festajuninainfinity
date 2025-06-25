@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -63,7 +63,14 @@
   </table>
 
   <script>
-    const apartamentos = Array.from({length: 54}, (_, i) => 100 + i + 1);
+    // Gera apartamentos: 01 (térreo), 101-104, 201-204, ..., 1301-1304 (total 54 unidades)
+    const apartamentos = ["01"];
+    for (let andar = 1; andar <= 13; andar++) {
+      for (let unidade = 1; unidade <= 4; unidade++) {
+        apartamentos.push(`${andar}${String(unidade).padStart(2, '0')}`);
+      }
+    }
+
     const usados = new Set();
 
     function atualizarStatus() {
@@ -83,7 +90,7 @@
 
       const tdApto = document.createElement("td");
       tdApto.textContent = apto;
-      
+
       const tdNome = document.createElement("td");
       const inputNome = document.createElement("input");
       inputNome.placeholder = "Seu nome";
